@@ -26,6 +26,13 @@ Resources:
                 type: aws_proxy
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${postItem.Arn}/invocations
               responses: {}
+          /item:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getItem.Arn}/invocations
+              responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
   getItems:
@@ -97,6 +104,34 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub ${AWS::StackName}-ItemTable
+  getItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-getItem
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: getItem
+      CodeUri: src/getItem
+      Handler: index.handler
+      Runtime: python3.7
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ItemTable
+      Events:
+        ItemApiGETitem:
+          Type: Api
+          Properties:
+            Path: /item
+            Method: GET
+            RestApiId: !Ref ItemApi
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemTable
+          TABLE_ARN: !GetAtt ItemTable.Arn
 Parameters:
   StackTagName:
     Type: String
