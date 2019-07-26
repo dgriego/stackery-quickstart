@@ -24,7 +24,7 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${postItem.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${newItem.Arn}/invocations
               responses: {}
           /item:
             get:
@@ -62,34 +62,6 @@ Resources:
           Properties:
             Path: /items
             Method: GET
-            RestApiId: !Ref ItemApi
-  postItem:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-postItem
-      Description: !Sub
-        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: postItem
-      CodeUri: src/postItem
-      Handler: index.handler
-      Runtime: nodejs10.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ItemTable
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref ItemTable
-          TABLE_ARN: !GetAtt ItemTable.Arn
-      Events:
-        ItemApiPOSTnewItem:
-          Type: Api
-          Properties:
-            Path: /newItem
-            Method: POST
             RestApiId: !Ref ItemApi
   ItemTable:
     Type: AWS::DynamoDB::Table
@@ -132,6 +104,34 @@ Resources:
         Variables:
           TABLE_NAME: !Ref ItemTable
           TABLE_ARN: !GetAtt ItemTable.Arn
+  newItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-newItem
+      Description: !Sub
+        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
+        - ResourceName: newItem
+      CodeUri: src/newItem
+      Handler: index.handler
+      Runtime: nodejs10.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ItemTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemTable
+          TABLE_ARN: !GetAtt ItemTable.Arn
+      Events:
+        ItemApiPOSTnewItem:
+          Type: Api
+          Properties:
+            Path: /newItem
+            Method: POST
+            RestApiId: !Ref ItemApi
 Parameters:
   StackTagName:
     Type: String
