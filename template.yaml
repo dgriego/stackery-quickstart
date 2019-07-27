@@ -85,7 +85,7 @@ Resources:
         - ResourceName: getItem
       CodeUri: src/getItem
       Handler: index.handler
-      Runtime: python3.7
+      Runtime: ruby2.5
       MemorySize: 3008
       Timeout: 30
       Tracing: Active

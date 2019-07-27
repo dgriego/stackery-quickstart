@@ -6,7 +6,7 @@ We recommend updating this readme with your own function specific documentation.
 # Dependencies
 You can add dependencies on other files and packages.
 Within this directory, local dependencies can be added as individual files and
-package dependencies can be added to [requirements.txt](https://pip.readthedocs.io/en/stable/user_guide/#requirements-files).
+package dependencies can be added to [Gemfile](https://bundler.io/gemfile.html).
 Package dependencies will be installed when the stack is deployed.
 
 # Stackery Documentation
